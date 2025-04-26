@@ -1,0 +1,45 @@
+{
+  "name": "@blaahaj/dropbox-hacking-uploader",
+  "version": "0.0.0",
+  "description": "Multipart & single-part uploaders for Dropbox",
+  "main": "index.js",
+  "scripts": {
+    "test": "concurrently --group pnpm:test:*",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "format": "prettier --write .",
+    "test:prettier": "prettier --check .",
+    "test:lint": "eslint",
+    "test:unit": "c8 node --enable-source-maps --experimental-test-coverage --test './dist/spec/**/*.js'"
+  },
+  "keywords": [],
+  "author": "Rachel Evans <rachel@rachelevans.org>",
+  "repository": {
+    "url": "https://github.com/blaahaj/dropbox-hacking-uploader"
+  },
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@commitlint/config-conventional": "^19.8.0",
+    "@eslint/js": "^9.21.0",
+    "@types/eslint__js": "8",
+    "@types/node": "^22.10.5",
+    "c8": "^10.1.3",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.21.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.19.1"
+  },
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
+  "dependencies": {
+    "@blaahaj/dropbox-hacking-util": "^1.0.1",
+    "dropbox": "^10.34.0"
+  },
+  "files": [
+    "dist/src/",
+    "CHANGELOG.md"
+  ]
+}

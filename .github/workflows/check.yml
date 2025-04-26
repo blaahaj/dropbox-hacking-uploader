@@ -1,0 +1,46 @@
+name: check
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install asdf & tools
+        uses: asdf-vm/actions/install@v3
+        with:
+          asdf_branch: v0.15.0 # the action has noisy warnings for >= 0.16.0
+      - name: Install
+        run: pnpm install
+      - name: Validate current commit (last commit) with commitlint
+        if: github.event_name == 'push'
+        run: pnpx commitlint --last --verbose
+      - name: Validate PR commits with commitlint
+        if: github.event_name == 'pull_request'
+        run: pnpx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+      - name: Build
+        run: pnpm build
+      - name: Test
+        run: pnpm test
+        continue-on-error: true
+        id: test
+      - name: Archive results (data)
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-data
+          path: |
+            coverage/*.json
+            junit.xml
+      - name: Respect test result
+        run: |
+          [ "${{ steps.test.outcome }}" == success ]

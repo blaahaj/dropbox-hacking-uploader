@@ -1,0 +1,50 @@
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish"
+        required: true
+      dry_run:
+        description: "Don't actually publish anything"
+        required: true
+        type: boolean
+        default: false
+      force:
+        description: "Republish if already published"
+        required: true
+        type: boolean
+        default: false
+
+name: publish-please
+
+jobs:
+  publish-please:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Install asdf & tools
+        uses: asdf-vm/actions/install@v3.0.2
+        with:
+          asdf_branch: v0.15.0 # the action has noisy warnings for >= 0.16.0
+      - name: Configure NPM auth
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.RELEASE_PLEASE_GITHUB_TOKEN }}" > ~/.npmrc
+      - name: Install
+        run: pnpm install
+      - name: Build
+        run: pnpm build
+      - name: Test
+        run: pnpm test
+      - name: Pack
+        run: pnpm pack
+      - name: List contents
+        run: tar -zvtf *.tgz
+      - name: Publish
+        run: |
+          pnpm publish *.tgz \
+            --no-git-checks \
+            ${{ fromJSON('["", "--dry-run"]')[inputs.dry_run] }} \
+            --access public
